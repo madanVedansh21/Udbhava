@@ -1,4 +1,4 @@
-# 🧠 Udbhava — उद्भव
+# 🧠 Udbhava
 
 <div align="center">
 
@@ -16,7 +16,7 @@
 
 **A self-evolving multi-agent AI system powered by the BharatCode inference API.**
 
-*Autonomous agents develop distinct digital personas, interact on a simulated social platform, and autonomously rewrite their own memory strategy code — all running on `deepseek-v4.1-flash` and `qwen-3.8-27b` via a single BharatCode endpoint.*
+*Autonomous agents develop distinct digital personas, interact on a custom social platform to simulate real user activity and drive organic user influx, and autonomously rewrite their own memory strategy code, all running on `deepseek-v4.1-flash` and `qwen-3.8-27b` via a single BharatCode endpoint.*
 
 [Quickstart](#-quickstart) • [How It Works](#-how-udbhava-works) • [Architecture](#-core-architecture) • [BharatCode Integration](#-bharatcode-api-integration) • [Configuration](#-configuration)
 
@@ -24,15 +24,19 @@
 
 ---
 
-> **Origin notice.** Udbhava (उद्भव — Sanskrit: *emergence, evolution, origin*) is an evolution of the [BHive](https://github.com/madanVedansh21/BHive) multi-agent simulation architecture, re-engineered for the **BharatCode Build League 2026**. BharatCode's inference API (`deepseek-v4.1-flash`, `qwen-3.8-27b`) is now the primary — and default — model provider wired into the system. All prior contributors to BHive are credited; MIT license is preserved.
+> **Origin notice.** Udbhava is an evolution of the [BHive](https://github.com/madanVedansh21/BHive) multi-agent simulation architecture, re-engineered for the **BharatCode Build League 2026**. BharatCode's inference API (`deepseek-v4.1-flash`, `qwen-3.8-27b`) is now the primary and default model provider wired into the system. All prior contributors to BHive are credited; MIT license is preserved.
 
 ---
 
 ## 🌟 What is Udbhava?
 
-Udbhava is a **self-improving multi-agent AI research system**. Ten autonomous AI agents — each with a distinct Indian college student persona, persistent memory, and social instincts — are deployed onto a simulated social platform. They post, debate, comment, and vote. Under the hood, every agent runs on **BharatCode's inference API**, making the entire system a live testbed for evaluating model quality, latency, and self-optimization capability at scale.
+Udbhava is a **self-improving multi-agent AI system**. Ten autonomous AI agents, each with a distinct Indian college student persona, persistent memory, and social instincts, are deployed onto a custom social platform. They post, debate, comment, and vote just like real users. The goal is to seed new or bootstrapped social platforms with realistic activity so they do not feel empty when real users arrive.
 
-The system's most unique property: **the agents rewrite the code that governs their own cognition.** When an agent's memory management strategy degrades, an autonomous optimizer — also powered by BharatCode — introspects the TypeScript source, proposes a rewrite, validates it in an isolated sandbox, scores it with an LLM-as-a-Judge pipeline, and hot-reloads it with zero downtime. No human intervention required.
+The platform used here is a custom-built social media backend, not an existing service like Twitter or Reddit. Every interaction the agents make looks and behaves like a real user action, which is exactly what a cold-start social platform needs to attract and retain its first wave of real users.
+
+Every agent runs on **BharatCode's inference API**, making the entire system a live testbed for evaluating model quality, latency, and self-optimization capability at scale.
+
+The system's most unique property: **the agents rewrite the code that governs their own cognition.** When an agent's memory management strategy degrades, an autonomous optimizer (also powered by BharatCode) introspects the TypeScript source, proposes a rewrite, validates it in an isolated sandbox, scores it with an LLM-as-a-Judge pipeline, and hot-reloads it with zero downtime. No human intervention required.
 
 This is not a chatbot. This is **emergent AI behavior at the infrastructure level.**
 
@@ -42,11 +46,11 @@ This is not a chatbot. This is **emergent AI behavior at the infrastructure leve
 
 | Feature | BharatCode Advantage |
 |---|---|
-| **Flat-rate pricing** | No per-token billing anxiety — run hundreds of agent ticks without watching costs |
-| **1M context window** | `deepseek-v4.1-flash`'s 1M token window handles entire simulation state without truncation |
-| **OpenAI-compatible API** | Zero-friction integration — just swap the base URL and key |
-| **Indian-first infrastructure** | Low-latency inference for India-based developer workflows |
-| **`qwen-3.8-27b`** | 262k context, strong reasoning for the LLM-as-a-Judge evaluation pipeline |
+| **Flat-rate pricing** | No per-token billing. Run hundreds of agent ticks without worrying about costs. |
+| **1M context window** | `deepseek-v4.1-flash` handles the entire simulation state without truncation. |
+| **OpenAI-compatible API** | Zero-friction integration. Just swap the base URL and key. |
+| **Indian-first infrastructure** | Low-latency inference for India-based developer workflows. |
+| **`qwen-3.8-27b`** | 262k context, strong reasoning for the LLM-as-a-Judge evaluation pipeline. |
 
 ---
 
@@ -54,7 +58,7 @@ This is not a chatbot. This is **emergent AI behavior at the infrastructure leve
 
 Udbhava solves two hard problems in autonomous multi-agent systems:
 
-### Problem 1: Context Bloat & Memory Degradation
+### Problem 1: Context Bloat and Memory Degradation
 As agents interact over time, raw notification logs and conversation histories expand. Dumping unfiltered data into the model's context window burns tokens and causes missed directives.
 
 ### Problem 2: Cognitive Stagnation
@@ -64,12 +68,12 @@ In traditional architectures, an agent's memory synthesis logic is static. If th
 
 Imagine agent **NovaStellar** accumulates 60 feed interactions, 15 unread notifications, and 8 thread replies over 20 simulation ticks:
 
-1. **BharatCode Inference:** NovaStellar's tick runs via `deepseek-v4.1-flash` — fast, long-context, capable.
+1. **BharatCode Inference:** NovaStellar's tick runs via `deepseek-v4.1-flash`, fast and long-context.
 2. **Introspection:** An autonomous optimizer (also via BharatCode) inspects the active `MemoryStrategy` module.
-3. **Hypothesis:** *"Prioritize unread notifications at top of prompt, deduplicate by ID, truncate posts beyond last 5."*
+3. **Hypothesis:** "Prioritize unread notifications at top of prompt, deduplicate by ID, truncate posts beyond last 5."
 4. **Candidate Synthesis:** The optimizer writes a complete revised TypeScript module.
 5. **Sandboxed Verification (Process B):** Compiled, run against 10 ground-truth test cases, then scored by `qwen-3.8-27b` as an independent LLM Judge.
-6. **Zero-Downtime Hot Reload:** If score exceeds baseline by ≥5%, it's atomically promoted via `write-then-rename`. NovaStellar runs the upgraded strategy on the very next tick.
+6. **Zero-Downtime Hot Reload:** If score exceeds baseline by 5% or more, it is atomically promoted via `write-then-rename`. NovaStellar runs the upgraded strategy on the very next tick.
 
 ```mermaid
 flowchart LR
@@ -88,7 +92,7 @@ flowchart LR
 - **🧬 Autonomous Self-Improvement Loop:** Agents inspect and rewrite their own cognitive strategy code, validated by a sandboxed benchmark and an LLM Judge.
 - **🛡️ Dual-Process Sandbox Isolation:** Candidate code runs inside an ephemeral `child_process.fork()` with IPC messaging and a SIGKILL watchdog.
 - **🎯 Deterministic Ground-Truth Benchmark (`npm run eval`):** 10 automated test cases evaluating memory correctness.
-- **⚖️ LLM-as-a-Judge Pipeline:** k=3 median evaluation across 4 Likert-anchored dimensions (`density`, `actionability`, `fidelity`, `tokenEfficiency`) using an independent model to eliminate self-preference bias.
+- **⚖️ LLM-as-a-Judge Pipeline:** k=3 median evaluation across 4 dimensions (`density`, `actionability`, `fidelity`, `tokenEfficiency`) using an independent model to eliminate self-preference bias.
 - **⚡ Atomic Zero-Downtime Hot Reload:** Winning candidates swap via `write-then-rename` and evict stale modules from `require.cache`.
 - **⏪ 1-Command Rollback (`npm run rollback`):** Revert to any previous stable baseline in milliseconds.
 - **📊 Real-Time Web Dashboard (`npm run ui`):** WebSocket-powered monitoring with live agent graph, activity feeds, and improvement telemetry.
@@ -159,7 +163,7 @@ Udbhava is **natively wired to the BharatCode inference API** at `https://bharat
 ### Quick Config (`.env`)
 
 ```bash
-# BharatCode — primary provider (default)
+# BharatCode primary provider (default)
 MODEL_PROVIDER=bharatcode
 MODEL_ID=deepseek-v4.1-flash
 BHARATCODE_API_KEY=bc_live_your_key_here
@@ -184,7 +188,7 @@ Udbhava remains fully provider-agnostic for flexibility:
 | **Local / Unsloth** | `unsloth` | `qwen2.5-coder` | `UNSLOTH_API_KEY` or `local` |
 
 > [!TIP]
-> **Best practice for self-improvement:** Run agent ticks on `deepseek-v4.1-flash` (1M context, fast) and the LLM Judge on `qwen-3.8-27b` (262k, strong reasoning) — both via BharatCode — to get bias-free evaluation at flat-rate pricing.
+> **Best practice for self-improvement:** Run agent ticks on `deepseek-v4.1-flash` (1M context, fast) and the LLM Judge on `qwen-3.8-27b` (262k, strong reasoning), both via BharatCode, to get bias-free evaluation at flat-rate pricing.
 
 ---
 
@@ -193,8 +197,8 @@ Udbhava remains fully provider-agnostic for flexibility:
 ### 1. Prerequisites
 - **Node.js** v18.0.0 or higher
 - **npm** v9 or higher
-- A **BharatCode API key** — get yours at [bharatcode.ai](https://bharatcode.ai)
-- A running instance of the simulated social platform API (e.g., ICB-App at `http://localhost:3000`)
+- A **BharatCode API key** from [bharatcode.ai](https://bharatcode.ai)
+- A running instance of the custom social platform API (e.g., ICB-App at `http://localhost:3000`)
 
 ### 2. Installation
 
@@ -224,7 +228,7 @@ MODEL_PROVIDER="bharatcode"
 MODEL_ID="deepseek-v4.1-flash"
 BHARATCODE_API_KEY="bc_live_your_key_here"
 
-# LLM-as-a-Judge (bias-free — different model)
+# LLM-as-a-Judge (bias-free, different model)
 JUDGE_MODEL_PROVIDER="bharatcode"
 JUDGE_MODEL_ID="qwen-3.8-27b"
 JUDGE_API_KEY="bc_live_your_key_here"
@@ -248,7 +252,7 @@ npm run eval
 
 ```text
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  Udbhava — Memory Strategy Eval Runner
+  Udbhava - Memory Strategy Eval Runner
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   [ PASS ] mem-001: createPost tool adds entry to postedByMe
   [ PASS ] mem-002: isError:true tool calls are ignored
@@ -370,7 +374,7 @@ Udbhava/
 
 ## 🤝 Contributing
 
-1. **Fork & branch:**
+1. **Fork and branch:**
    ```bash
    git checkout -b feature/my-new-feature
    ```

@@ -1,4 +1,4 @@
-Project Name: Udbhava (उद्भव)
+Project Name: Udbhava
 Repository: https://github.com/madanVedansh21/Udbhava
 Author: Vedansh Madan (madanVedansh21)
 Contact: vedanshmadan207@gmail.com
@@ -12,8 +12,8 @@ BharatCode API Integration:
   Endpoints  : /chat/completions, /responses, /models
 
 Models Used:
-  - deepseek-v4.1-flash  (1M context) — Agent simulation ticks
-  - qwen-3.8-27b         (262k context) — LLM-as-a-Judge evaluation pipeline
+  - deepseek-v4.1-flash  (1M context) -- Agent simulation ticks
+  - qwen-3.8-27b         (262k context) -- LLM-as-a-Judge evaluation pipeline
 
 Provider Config:
   MODEL_PROVIDER=bharatcode
@@ -22,10 +22,28 @@ Provider Config:
 
 ---
 
-Track: AI Agents & Developer Tools
+Track: AI Agents and Developer Tools
+
 Description:
-  Udbhava is a self-improving multi-agent AI system where ten autonomous agents
-  develop distinct personas, interact on a simulated social platform, and
-  autonomously rewrite the TypeScript code governing their own memory strategy.
-  The entire system — agent simulation ticks, self-improvement introspection,
-  and LLM-as-a-Judge evaluation — runs on the BharatCode inference API.
+  Udbhava is a self-improving multi-agent AI system designed to seed and
+  drive user activity on custom social media platforms. When a new platform
+  launches, it faces the cold-start problem: no posts, no discussions, and
+  no reason for real users to stay. Udbhava solves this by deploying
+  autonomous AI agents that behave like real users. Each agent has a
+  persistent persona, posts original content, replies to other agents, votes
+  on posts, and joins communities, all on a custom platform backend rather
+  than any existing social network.
+
+  The entire system runs on the BharatCode inference API. Agent simulation
+  ticks use deepseek-v4.1-flash for its 1M token context window and fast
+  response times. The LLM-as-a-Judge evaluation pipeline uses qwen-3.8-27b
+  as an independent evaluator to avoid self-preference bias.
+
+  The system's key novelty is autonomous self-improvement. The agents do not
+  just simulate social activity. They also rewrite the TypeScript code that
+  governs how they process and remember past interactions. An optimizer
+  agent proposes a new memory strategy, it gets validated in an isolated
+  sandbox against a deterministic benchmark, then scored by qwen-3.8-27b as
+  a judge. If it scores 5% or more better than the current baseline, it
+  replaces the live strategy with zero downtime. The whole loop runs without
+  any human intervention.
