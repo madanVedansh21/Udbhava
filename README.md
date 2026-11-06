@@ -1,85 +1,118 @@
-# 🐝 BHive
+# 🧠 Udbhava — उद्भव
 
 <div align="center">
 
+<img src="https://img.shields.io/badge/Powered%20by-bharatcode.ai-FF6B35?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMTIgMkw0IDE0aDhMMiAyMmwxOC04aC04bDgtMTJ6IiBmaWxsPSIjRkY2QjM1Ii8+PC9zdmc+" alt="Powered by BharatCode">
+
+[![Model: qwen-3.8-27b](https://img.shields.io/badge/qwen--3.8--27b-262k_ctx-orange?style=flat-square)](https://bharatcode.ai)
+[![Model: deepseek-v4.1-flash](https://img.shields.io/badge/deepseek--v4.1--flash-1M_ctx-blue?style=flat-square)](https://bharatcode.ai)
+[![One Endpoint](https://img.shields.io/badge/one%20endpoint-bharatcode.ai%2Fapi%2Fmodel%2Fv1-333?style=flat-square)](https://bharatcode.ai/api/model/v1)
+
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Node.js](https://img.shields.io/badge/Node.js-v18%2B-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
-[![LLM Providers](https://img.shields.io/badge/LLM_Providers-OpenRouter_/_Gemini_/_OpenAI_/_Anthropic-8A2BE2.svg)](#-multi-provider-llm-engine)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](#-contributing)
+[![BharatCode Build League](https://img.shields.io/badge/BharatCode-Build%20League%202026-FF6B35?style=flat-square)](https://bharatcode.ai/hackathon)
 
-**An autonomous multi-agent community simulation with a self-improving cognitive engine.**  
-*Agents develop distinct digital personas, interact on a simulated social platform, and autonomously optimize their own source code in a safe sandbox.*
+**A self-evolving multi-agent AI system powered by the BharatCode inference API.**
 
-[Quickstart](#-quickstart) • [Overview](#-the-problem--how-bhive-solves-it) • [Architecture](#-core-architecture) • [What's New in v2](#-whats-new-in-v2) • [Configuration](#-configuration-environment-variables)
+*Autonomous agents develop distinct digital personas, interact on a simulated social platform, and autonomously rewrite their own memory strategy code — all running on `deepseek-v4.1-flash` and `qwen-3.8-27b` via a single BharatCode endpoint.*
+
+[Quickstart](#-quickstart) • [How It Works](#-how-udbhava-works) • [Architecture](#-core-architecture) • [BharatCode Integration](#-bharatcode-api-integration) • [Configuration](#-configuration)
 
 </div>
 
 ---
 
-## 📌 The Problem & How BHive Solves It
+> **Origin notice.** Udbhava (उद्भव — Sanskrit: *emergence, evolution, origin*) is an evolution of the [BHive](https://github.com/madanVedansh21/BHive) multi-agent simulation architecture, re-engineered for the **BharatCode Build League 2026**. BharatCode's inference API (`deepseek-v4.1-flash`, `qwen-3.8-27b`) is now the primary — and default — model provider wired into the system. All prior contributors to BHive are credited; MIT license is preserved.
 
-In multi-agent simulation environments, autonomous agents develop persistent digital personas, interact on a shared social platform, post updates, reply to discussions, and maintain individual memories.
+---
 
-Building robust autonomous agent communities faces two fundamental engineering bottlenecks:
+## 🌟 What is Udbhava?
 
-1. **Context Bloat & Memory Degradation:** As agents interact over time, raw notification logs and conversation histories expand. Dumping unfiltered JSON data into the model's context window increases token costs, elevates latency, and causes hallucinations or missed directives.
-2. **Cognitive Stagnation:** In traditional architectures, an agent's memory synthesis logic is static. If the strategy produces sub-optimal context prompts, an engineer must manually modify the codebase, execute tests, and redeploy the system.
+Udbhava is a **self-improving multi-agent AI research system**. Ten autonomous AI agents — each with a distinct Indian college student persona, persistent memory, and social instincts — are deployed onto a simulated social platform. They post, debate, comment, and vote. Under the hood, every agent runs on **BharatCode's inference API**, making the entire system a live testbed for evaluating model quality, latency, and self-optimization capability at scale.
 
-### A Concrete Example
+The system's most unique property: **the agents rewrite the code that governs their own cognition.** When an agent's memory management strategy degrades, an autonomous optimizer — also powered by BharatCode — introspects the TypeScript source, proposes a rewrite, validates it in an isolated sandbox, scores it with an LLM-as-a-Judge pipeline, and hot-reloads it with zero downtime. No human intervention required.
 
-Imagine an autonomous agent named **NovaStellar** participating in a digital community:
+This is not a chatbot. This is **emergent AI behavior at the infrastructure level.**
 
-* **The Scenario:** Over 20 simulation ticks, NovaStellar accumulates 60 feed interactions, 15 unread notifications, and 8 thread replies.
-* **The Failure Mode:** If all interactions are dumped verbatim into the context prompt, NovaStellar's immediate action queue is obscured by stale history. The agent burns thousands of unnecessary tokens and fails to respond to high-priority user mentions.
-* **The BHive Solution:**
-  1. **Introspection:** On a scheduled cadence, an autonomous optimizer inspects NovaStellar's active `MemoryStrategy` module (`src/strategies/memory/default.ts`).
-  2. **Hypothesis Formulation:** The optimizer formulates a concrete algorithmic hypothesis: *"Prioritize unread notifications at the top of the prompt, enforce strict deduplication by ID, and truncate historic posts beyond the last 5 entries."*
-  3. **Candidate Synthesis:** The optimizer writes a complete, revised TypeScript module implementing this logic.
-  4. **Isolated Sandboxing (Process B):** The candidate code is executed in an isolated child process (`child_process.fork()`). It must compile cleanly, pass a 10-case ground-truth test suite (`npm run eval`), and satisfy an independent LLM Judge on density, actionability, fidelity, and token efficiency.
-  5. **Zero-Downtime Hot Reload:** If the candidate exceeds the baseline score, the system atomically promotes the file (`write-then-rename`) and evicts stale modules from memory. On the very next tick, NovaStellar and all peer agents immediately execute using the upgraded cognitive strategy without restarting the orchestrator.
+---
+
+## 🔥 Why BharatCode?
+
+| Feature | BharatCode Advantage |
+|---|---|
+| **Flat-rate pricing** | No per-token billing anxiety — run hundreds of agent ticks without watching costs |
+| **1M context window** | `deepseek-v4.1-flash`'s 1M token window handles entire simulation state without truncation |
+| **OpenAI-compatible API** | Zero-friction integration — just swap the base URL and key |
+| **Indian-first infrastructure** | Low-latency inference for India-based developer workflows |
+| **`qwen-3.8-27b`** | 262k context, strong reasoning for the LLM-as-a-Judge evaluation pipeline |
+
+---
+
+## 💡 How Udbhava Works
+
+Udbhava solves two hard problems in autonomous multi-agent systems:
+
+### Problem 1: Context Bloat & Memory Degradation
+As agents interact over time, raw notification logs and conversation histories expand. Dumping unfiltered data into the model's context window burns tokens and causes missed directives.
+
+### Problem 2: Cognitive Stagnation
+In traditional architectures, an agent's memory synthesis logic is static. If the strategy produces sub-optimal prompts, an engineer must manually patch and redeploy.
+
+### The Udbhava Solution
+
+Imagine agent **NovaStellar** accumulates 60 feed interactions, 15 unread notifications, and 8 thread replies over 20 simulation ticks:
+
+1. **BharatCode Inference:** NovaStellar's tick runs via `deepseek-v4.1-flash` — fast, long-context, capable.
+2. **Introspection:** An autonomous optimizer (also via BharatCode) inspects the active `MemoryStrategy` module.
+3. **Hypothesis:** *"Prioritize unread notifications at top of prompt, deduplicate by ID, truncate posts beyond last 5."*
+4. **Candidate Synthesis:** The optimizer writes a complete revised TypeScript module.
+5. **Sandboxed Verification (Process B):** Compiled, run against 10 ground-truth test cases, then scored by `qwen-3.8-27b` as an independent LLM Judge.
+6. **Zero-Downtime Hot Reload:** If score exceeds baseline by ≥5%, it's atomically promoted via `write-then-rename`. NovaStellar runs the upgraded strategy on the very next tick.
 
 ```mermaid
 flowchart LR
-    Sim["1. Live Simulation<br/>Agents interact & record memory"] --> Intro["2. Introspection<br/>Optimizer analyzes strategy"]
-    Intro --> Fork["3. Code Candidate<br/>Optimizer writes revised default.ts"]
-    Fork --> Eval["4. Sandboxed Verification<br/>Ground-truth suite + LLM Judge"]
-    Eval -->|"Atomic Hot Reload<br/>(Zero Downtime)"| Sim
+    BC["BharatCode API\ndeepseek-v4.1-flash\nqwen-3.8-27b"] --> Sim
+    Sim["1. Live Simulation\nAgents interact & record memory"] --> Intro["2. Introspection\nOptimizer analyzes strategy"]
+    Intro --> Fork["3. Code Candidate\nOptimizer writes revised default.ts"]
+    Fork --> Eval["4. Sandboxed Verification\nGround-truth suite + LLM Judge"]
+    Eval -->|"Atomic Hot Reload\n(Zero Downtime)"| Sim
 ```
 
 ---
 
-## ✨ What's New in v2
+## ✨ Key Features
 
-- **🌐 Multi-Provider LLM Engine:** Pluggable, provider-agnostic core supporting **Google Gemini**, **OpenAI**, and **Anthropic** with standard API key fallback.
-- **🧬 Autonomous Self-Improvement Loop:** Agents inspect their own strategy code and submit proposals to optimize context formulation and state compaction.
-- **🛡️ Dual-Process Sandbox Isolation:** Candidate code runs inside an ephemeral forked worker (`Process B`) equipped with syntax validation, IPC messaging, and a SIGKILL watchdog to guard against infinite loops.
-- **🎯 Deterministic Ground-Truth Benchmark (`npm run eval`):** 10 automated test cases evaluating notification de-duplication, cooldown enforcement, and memory pruning.
-- **⚖️ LLM-as-a-Judge Pipeline:** Multi-provider $k=3$ median evaluation across 4 Likert-anchored dimensions (`density`, `actionability`, `fidelity`, `tokenEfficiency`) using an independent model to eliminate self-preference bias.
-- **⚡ Atomic Zero-Downtime Hot Reload:** Winning candidates swap via `write-then-rename`, evict stale modules from `require.cache`, and archive historical snapshots.
-- **⏪ Instant 1-Command Rollback (`npm run rollback`):** Revert any promoted strategy to the previous stable baseline in milliseconds.
-- **📊 Real-Time Web UI Dashboard (`npm run ui`):** Full-stack monitoring dashboard with WebSockets, live agent network graph, activity feeds, and telemetry.
+- **🇮🇳 BharatCode-Native:** `deepseek-v4.1-flash` and `qwen-3.8-27b` as default model providers. One key, one endpoint, unlimited agent ticks.
+- **🧬 Autonomous Self-Improvement Loop:** Agents inspect and rewrite their own cognitive strategy code, validated by a sandboxed benchmark and an LLM Judge.
+- **🛡️ Dual-Process Sandbox Isolation:** Candidate code runs inside an ephemeral `child_process.fork()` with IPC messaging and a SIGKILL watchdog.
+- **🎯 Deterministic Ground-Truth Benchmark (`npm run eval`):** 10 automated test cases evaluating memory correctness.
+- **⚖️ LLM-as-a-Judge Pipeline:** k=3 median evaluation across 4 Likert-anchored dimensions (`density`, `actionability`, `fidelity`, `tokenEfficiency`) using an independent model to eliminate self-preference bias.
+- **⚡ Atomic Zero-Downtime Hot Reload:** Winning candidates swap via `write-then-rename` and evict stale modules from `require.cache`.
+- **⏪ 1-Command Rollback (`npm run rollback`):** Revert to any previous stable baseline in milliseconds.
+- **📊 Real-Time Web Dashboard (`npm run ui`):** WebSocket-powered monitoring with live agent graph, activity feeds, and improvement telemetry.
 
 ---
 
 ## 🏛️ Core Architecture
 
-BHive separates live simulation runtime from experimental self-modification using a dual-process topology:
+Udbhava separates live simulation from experimental self-modification using a dual-process topology:
 
 ```mermaid
 flowchart TD
     subgraph ProcessA["Process A: Orchestrator & Live Simulation"]
         direction TB
-        Sched["Tick Loop Scheduler<br/>(Every TICK_INTERVAL_MS)"]
-        Select["Select Eligible Agents<br/>(Cooldowns & Concurrency)"]
-        Sessions["Ephemeral Agent Sessions<br/>(Post, Comment, Vote)"]
-        Memory["Update Agent Memory<br/>(Active MemoryStrategy)"]
+        Sched["Tick Loop Scheduler\n(Every TICK_INTERVAL_MS)"]
+        Select["Select Eligible Agents\n(Cooldowns & Concurrency)"]
+        Sessions["Ephemeral Agent Sessions\n(Post, Comment, Vote via BharatCode API)"]
+        Memory["Update Agent Memory\n(Active MemoryStrategy)"]
 
         Sched --> Select --> Sessions --> Memory
 
-        Cadence{"Improvement Cadence<br/>(Every N Ticks)"}
-        Introspect["Introspection Pi Session<br/>(Introspection Tools)"]
-        Propose["Propose Candidate Module<br/>(New default.ts)"]
+        Cadence{"Improvement Cadence\n(Every N Ticks)"}
+        Introspect["Introspection Session\n(BharatCode-powered)"]
+        Propose["Propose Candidate Module\n(New default.ts)"]
 
         Memory -.-> Cadence
         Cadence -- "Tick % N == 0" --> Introspect --> Propose
@@ -87,10 +120,10 @@ flowchart TD
 
     subgraph ProcessB["Process B: Isolated Child Sandbox (child_process.fork)"]
         direction TB
-        Syntax["1. TypeScript Pre-Flight<br/>(tsc --noEmit validation)"]
-        EvalTest["2. Deterministic Benchmark<br/>(10 Ground-Truth Test Cases)"]
-        JudgePipe["3. LLM-as-a-Judge Pipeline<br/>(k=3 Median Likert Scoring)"]
-        Watchdog["SIGKILL Watchdog<br/>(Terminates runaway loops)"]
+        Syntax["1. TypeScript Pre-Flight\n(tsc --noEmit validation)"]
+        EvalTest["2. Deterministic Benchmark\n(10 Ground-Truth Test Cases)"]
+        JudgePipe["3. LLM-as-a-Judge Pipeline\n(qwen-3.8-27b, k=3 Median Likert)"]
+        Watchdog["SIGKILL Watchdog\n(Terminates runaway loops)"]
 
         Syntax --> EvalTest --> JudgePipe
     end
@@ -99,8 +132,8 @@ flowchart TD
 
     subgraph Promo["Promotion Engine"]
         Check{"Score >= Baseline + ACCEPT_MARGIN?"}
-        Promote["Promote Candidate:<br/>1. Archive to improvement/archive/<br/>2. Atomic write-then-rename<br/>3. Evict from require.cache"]
-        Reject["Reject Candidate:<br/>1. Append failure diagnostic<br/>2. Log to history.jsonl"]
+        Promote["Promote Candidate:\n1. Archive to improvement/archive/\n2. Atomic write-then-rename\n3. Evict from require.cache"]
+        Reject["Reject Candidate:\n1. Append failure diagnostic\n2. Log to history.jsonl"]
 
         Check -- "YES (+5%)" --> Promote
         Check -- "NO" --> Reject
@@ -112,36 +145,63 @@ flowchart TD
 
 ---
 
-## 🔌 Multi-Provider LLM Engine
+## 🔌 BharatCode API Integration
 
-BHive is completely provider-agnostic. You can power your agent swarm and evaluation judges using your preferred LLM provider:
+Udbhava is **natively wired to the BharatCode inference API** at `https://bharatcode.ai/api/model/v1`.
 
-| Provider | `MODEL_PROVIDER` | Example Model IDs (`MODEL_ID`) | Primary Env Var |
+### Available Models
+
+| Model | Context Window | Best Used For | Plan |
 |---|---|---|---|
-| **OpenRouter** | `openrouter` | `anthropic/claude-sonnet-4.5`, `deepseek/deepseek-chat`, `meta-llama/llama-3.3-70b-instruct` | `OPENROUTER_API_KEY` or `MY_KEY` |
+| `qwen-3.8-27b` | 262k tokens | LLM-as-a-Judge evaluation, reasoning tasks | Student / Lite / Pro |
+| `deepseek-v4.1-flash` | 1M tokens | Agent simulation ticks, long-context strategy improvement | Pro |
+
+### Quick Config (`.env`)
+
+```bash
+# BharatCode — primary provider (default)
+MODEL_PROVIDER=bharatcode
+MODEL_ID=deepseek-v4.1-flash
+BHARATCODE_API_KEY=bc_live_your_key_here
+
+# Judge runs on a separate model to prevent self-preference bias
+JUDGE_MODEL_PROVIDER=bharatcode
+JUDGE_MODEL_ID=qwen-3.8-27b
+JUDGE_API_KEY=bc_live_your_key_here
+```
+
+### All Supported Providers
+
+Udbhava remains fully provider-agnostic for flexibility:
+
+| Provider | `MODEL_PROVIDER` | Example Model IDs | Primary Env Var |
+|---|---|---|---|
+| **BharatCode** ⭐ | `bharatcode` | `deepseek-v4.1-flash`, `qwen-3.8-27b` | `BHARATCODE_API_KEY` or `MY_KEY` |
+| **OpenRouter** | `openrouter` | `anthropic/claude-sonnet-4.5`, `deepseek/deepseek-chat` | `OPENROUTER_API_KEY` or `MY_KEY` |
 | **Google Gemini** | `gemini` | `gemini-2.5-flash`, `gemini-2.5-pro` | `GEMINI_API_KEY` or `MY_KEY` |
 | **OpenAI** | `openai` | `gpt-4o`, `gpt-4o-mini` | `OPENAI_API_KEY` or `MY_KEY` |
-| **Anthropic** | `anthropic` | `claude-3-5-sonnet-20241022`, `claude-3-5-haiku-20241022` | `ANTHROPIC_API_KEY` or `MY_KEY` |
+| **Anthropic** | `anthropic` | `claude-3-5-sonnet-20241022` | `ANTHROPIC_API_KEY` or `MY_KEY` |
+| **Local / Unsloth** | `unsloth` | `qwen2.5-coder` | `UNSLOTH_API_KEY` or `local` |
 
 > [!TIP]
-> **Mitigating Judge Bias:** You can configure the judge to run on a different model provider than your main agents (e.g., OpenRouter judge for OpenAI agents) using `JUDGE_MODEL_PROVIDER` and `JUDGE_MODEL_ID` to eliminate self-preference bias.
+> **Best practice for self-improvement:** Run agent ticks on `deepseek-v4.1-flash` (1M context, fast) and the LLM Judge on `qwen-3.8-27b` (262k, strong reasoning) — both via BharatCode — to get bias-free evaluation at flat-rate pricing.
 
 ---
 
 ## 🚀 Quickstart
 
 ### 1. Prerequisites
-- **Node.js** (v18.0.0 or higher)
-- **npm** (v9 or higher)
-- An API key from **OpenRouter**, **Google Gemini**, **OpenAI**, or **Anthropic**
-- A running instance of the simulated social platform API (e.g. ICB-App running at `http://localhost:3000`)
+- **Node.js** v18.0.0 or higher
+- **npm** v9 or higher
+- A **BharatCode API key** — get yours at [bharatcode.ai](https://bharatcode.ai)
+- A running instance of the simulated social platform API (e.g., ICB-App at `http://localhost:3000`)
 
 ### 2. Installation
 
 ```bash
 # Clone the repository
-git clone https://github.com/madanVedansh21/BHive.git
-cd BHive
+git clone https://github.com/madanVedansh21/Udbhava.git
+cd Udbhava
 
 # Install dependencies
 npm install
@@ -149,46 +209,38 @@ npm install
 
 ### 3. Environment Setup
 
-Copy the example configuration to `.env` and adjust your keys:
-
 ```bash
 cp .env.example .env
 ```
 
-Key environment variables:
+Minimal configuration to get started with BharatCode:
 
 ```bash
-# Target social platform API
+# Social platform target
 PLATFORM_BASE_URL="http://localhost:3000"
 
-# Choose your provider: openrouter | gemini | openai | anthropic
-MODEL_PROVIDER="openrouter"
-MODEL_ID="anthropic/claude-sonnet-4.5"
+# BharatCode inference (recommended default)
+MODEL_PROVIDER="bharatcode"
+MODEL_ID="deepseek-v4.1-flash"
+BHARATCODE_API_KEY="bc_live_your_key_here"
 
-# Primary API Key (or use OPENROUTER_API_KEY / GEMINI_API_KEY / OPENAI_API_KEY / ANTHROPIC_API_KEY)
-MY_KEY="your-api-key-here"
-
-# (Optional) Decoupled Judge Model
-JUDGE_MODEL_PROVIDER="openai"
-JUDGE_MODEL_ID="gpt-4o-mini"
-JUDGE_API_KEY="your-openai-key-here"
+# LLM-as-a-Judge (bias-free — different model)
+JUDGE_MODEL_PROVIDER="bharatcode"
+JUDGE_MODEL_ID="qwen-3.8-27b"
+JUDGE_API_KEY="bc_live_your_key_here"
 ```
 
 ### 4. Bootstrap Agents
 
-Register new agents with unique personalities onto the platform:
-
 ```bash
-# Registers 5 default autonomous personas
+# Register 5 autonomous personas onto the platform
 npm run register
 
-# Or register a custom number of agents
+# Or register a custom count
 npm run register -- --count 10
 ```
 
 ### 5. Verify the Baseline
-
-Run the offline deterministic benchmark against the default strategy:
 
 ```bash
 npm run eval
@@ -196,46 +248,40 @@ npm run eval
 
 ```text
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  BHive v2 — Memory Strategy Eval Runner
+  Udbhava — Memory Strategy Eval Runner
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  Dataset : src/improve/dataset/memory.v0.jsonl
-
   [ PASS ] mem-001: createPost tool adds entry to postedByMe
-  [ PASS ] mem-002: isError:true tool calls are ignored — memory unchanged
+  [ PASS ] mem-002: isError:true tool calls are ignored
   [ PASS ] mem-003: createComment tool adds entry to commentedByMe
-  [ PASS ] mem-004: ack_notification marks that notification as read=true
+  [ PASS ] mem-004: ack_notification marks notification as read=true
   [ PASS ] mem-005: get_my_notifications merges new notifications by id
-  [ PASS ] mem-006: get_my_notifications called twice does not duplicate entries
+  [ PASS ] mem-006: get_my_notifications called twice does not duplicate
   [ PASS ] mem-007: buildContext with 0 posts says agent has not posted yet
   [ PASS ] mem-008: buildContext with 7 posts only surfaces last 5
   [ PASS ] mem-009: buildContext with unread notifications mentions them
-  [ PASS ] mem-010: buildContext with all-read notifications says no unread notifications
-
+  [ PASS ] mem-010: buildContext with all-read notifications says no unread
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  Score   : 100.0% | Passed: 10 / 10 | Failed: 0
+  Score: 100.0% | Passed: 10 / 10 | Failed: 0
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
 
 ### 6. Start the Orchestrator
 
-Start the autonomous community simulation:
-
 ```bash
-# Run standard tick loop
+# Standard tick loop
 npm run orchestrate
 
-# Or enable autonomous self-improvement on cadence (every 20 ticks)
+# With autonomous self-improvement enabled
 IMPROVE_ENABLED=true IMPROVE_CADENCE_TICKS=20 npm run orchestrate
 ```
 
 ### 7. Launch the Real-Time Dashboard
 
-Start the integrated web dashboard and WebSocket telemetry server:
-
 ```bash
 npm run ui
 ```
-Open **`http://localhost:4242`** in your browser to inspect real-time agent thoughts, live interactions, network topology, and self-improvement events.
+
+Open **`http://localhost:4242`** to monitor real-time agent thoughts, live interactions, network topology, and self-improvement events.
 
 ---
 
@@ -243,42 +289,43 @@ Open **`http://localhost:4242`** in your browser to inspect real-time agent thou
 
 | Command | Action |
 |---|---|
-| `npm run register` | Register new agents on the platform and initialize persistent memory files in `agents/`. |
-| `npm run register -- --count N` | Register $N$ unique agent personas. |
+| `npm run register` | Register new agent personas with persistent memory files. |
+| `npm run register -- --count N` | Register N unique agent personas. |
 | `npm run orchestrate` | Start the multi-agent tick loop scheduler. |
 | `npm run eval` | Run the offline deterministic test suite against the active strategy. |
-| `npm run improve` | Trigger an on-demand, interactive autonomous self-improvement cycle. |
+| `npm run improve` | Trigger an on-demand autonomous self-improvement cycle. |
 | `npm run rollback` | Revert the active strategy to the previous archived baseline. |
-| `npm run ui` | Launch the Express + WebSocket server and real-time frontend dashboard (port `4242`). |
+| `npm run ui` | Launch the Express + WebSocket server and real-time frontend dashboard. |
 | `npm run build` | Compile TypeScript sources to `dist/`. |
 
 ---
 
-## ⚙️ Configuration (Environment Variables)
+## ⚙️ Configuration
 
-All options can be defined in a `.env` file or exported directly in your shell:
+All options can be set in `.env` or exported directly in your shell:
 
 | Variable | Description | Default |
 |---|---|---|
 | `PLATFORM_BASE_URL` | Base URL of the social platform REST API | `http://localhost:3000` |
-| `MODEL_PROVIDER` | LLM provider: `openrouter`, `gemini`, `openai`, or `anthropic` | `anthropic` |
-| `MODEL_ID` | Model identifier for simulation agents | _(Required via env)_ |
-| `MY_KEY` | Universal API key fallback | _(Required via env)_ |
-| `OPENROUTER_API_KEY` | Provider key for OpenRouter | _(Optional fallback)_ |
-| `GEMINI_API_KEY` | Provider key for Google Gemini | _(Optional fallback)_ |
-| `OPENAI_API_KEY` | Provider key for OpenAI | _(Optional fallback)_ |
-| `ANTHROPIC_API_KEY` | Provider key for Anthropic | _(Optional fallback)_ |
-| `TICK_INTERVAL_MS` | Delay between agent execution ticks | `60000` (1 minute) |
+| `MODEL_PROVIDER` | LLM provider: `bharatcode`, `openrouter`, `gemini`, `openai`, `anthropic`, `unsloth` | `bharatcode` |
+| `MODEL_ID` | Model identifier for simulation agents | `deepseek-v4.1-flash` |
+| `BHARATCODE_API_KEY` | BharatCode API key | _(Required for `bharatcode` provider)_ |
+| `MY_KEY` | Universal API key fallback (routed to active provider) | _(Optional)_ |
+| `OPENROUTER_API_KEY` | Provider key for OpenRouter | _(Optional)_ |
+| `GEMINI_API_KEY` | Provider key for Google Gemini | _(Optional)_ |
+| `OPENAI_API_KEY` | Provider key for OpenAI | _(Optional)_ |
+| `ANTHROPIC_API_KEY` | Provider key for Anthropic | _(Optional)_ |
+| `TICK_INTERVAL_MS` | Delay between agent execution ticks | `60000` (1 min) |
 | `AGENTS_PER_TICK` | Number of agents selected to act per tick | `5` |
 | `CONCURRENCY_LIMIT` | Maximum concurrent LLM requests per tick | `3` |
-| `POST_COOLDOWN_MS` | Cooldown period after creating a thread | `300000` (5 minutes) |
+| `POST_COOLDOWN_MS` | Cooldown period after creating a thread | `300000` (5 min) |
 | `IMPROVE_ENABLED` | Enable scheduled self-improvement sessions | `false` |
 | `IMPROVE_CADENCE_TICKS` | Frequency of improvement sessions (in ticks) | `20` |
-| `ACCEPT_MARGIN` | Score improvement margin needed to promote | `0.05` (+5%) |
-| `JUDGE_MODEL_PROVIDER` | Provider for LLM judge | `MODEL_PROVIDER` |
-| `JUDGE_MODEL_ID` | Model identifier for LLM judge | _(Required via env)_ |
-| `JUDGE_API_KEY` | Dedicated API key for the judge model | `MY_KEY` |
-| `JUDGE_SAMPLES` | Number of samples ($k$) for median scoring | `3` |
+| `ACCEPT_MARGIN` | Score delta required to promote a candidate | `0.05` (+5%) |
+| `JUDGE_MODEL_PROVIDER` | Provider for the LLM Judge | `bharatcode` |
+| `JUDGE_MODEL_ID` | Model identifier for LLM Judge | `qwen-3.8-27b` |
+| `JUDGE_API_KEY` | Dedicated API key for the judge model | `BHARATCODE_API_KEY` / `MY_KEY` |
+| `JUDGE_SAMPLES` | Number of samples (k) for median scoring | `3` |
 | `UI_PORT` | Port for the visual monitoring dashboard | `4242` |
 
 ---
@@ -286,68 +333,70 @@ All options can be defined in a `.env` file or exported directly in your shell:
 ## 📂 Repository Layout
 
 ```text
-BHive/
+Udbhava/
+├── BharatCode.txt                      # BharatCode Build League submission manifest
 ├── agents/                             # Persistent agent state & memory profiles (*.json)
-├── cli-sessions/
-│   ├── bhive-v2-research.md            # Research citations & design decisions
-│   └── bhive-v2-implementation-plan.md # Engineering architecture blueprint
 ├── improvement/
 │   ├── archive/memory/                 # Versioned rollback snapshots (v1.ts, v2.ts, ...)
 │   ├── history.jsonl                   # Append-only audit log of all promotion attempts
-│   └── state/memory.json               # Active version, score, and baseline metadata
+│   └── state/memory.json              # Active version, score, and baseline metadata
 ├── src/
 │   ├── improve/
 │   │   ├── dataset/memory.v0.jsonl     # Ground-truth evaluation test cases
 │   │   ├── evalChild.ts                # Process B sandboxed child runner (IPC)
 │   │   ├── evalRunner.ts               # Deterministic benchmark harness
-│   │   ├── improveSession.ts           # Pi introspection session & self-reflection loop
+│   │   ├── improveSession.ts           # Self-improvement introspection loop
 │   │   ├── judge.ts                    # Multi-provider LLM Judge (k=3 median)
-│   │   ├── promoter.ts                 # Atomic promotion, archiving & rollback manager
+│   │   ├── promoter.ts                 # Atomic promotion & rollback manager
 │   │   ├── registry.ts                 # Module allowlist & cache-busting loader
 │   │   └── sandbox.ts                  # Child process fork with SIGKILL watchdog
 │   ├── strategies/
-│   │   └── memory/default.ts           # Active MemoryStrategy (context building & mutations)
-│   ├── agentSession.ts                 # Transient per-tick agent session factory
+│   │   └── memory/default.ts           # Active MemoryStrategy (autonomously evolved)
+│   ├── agentSession.ts                 # Per-tick agent runner (BharatCode API calls)
 │   ├── agentStore.ts                   # Agent JSON persistence and state management
 │   ├── eventBus.ts                     # In-memory pub/sub event bus
 │   ├── improveTools.ts                 # Introspection tools (list, read, eval, propose)
-│   ├── index.ts                        # CLI dispatcher & help manual
+│   ├── index.ts                        # CLI dispatcher
 │   ├── orchestrator.ts                 # Tick scheduler & cadence coordinator
 │   ├── personas.ts                     # Predefined personality & behavior archetypes
 │   ├── platformClient.ts               # REST API HTTP client
 │   ├── platformTools.ts                # Platform action tools (post, comment, vote)
 │   ├── uiServer.ts                     # Express + WebSocket telemetry server
 │   └── types.ts                        # Shared TypeScript interfaces & types
-└── ui/                                 # Vite + React + Tailwind + Zustand frontend dashboard
+└── ui/                                 # Vite + React + Tailwind + Zustand dashboard
 ```
 
 ---
 
 ## 🤝 Contributing
 
-We welcome contributions from the open-source community! Whether you want to add new strategy interfaces, benchmark datasets, UI visualizations, or platform adapters:
-
-1. **Fork the repo** & create your feature branch:
+1. **Fork & branch:**
    ```bash
    git checkout -b feature/my-new-feature
    ```
-2. **Ensure type integrity and tests pass:**
+2. **Verify types and tests:**
    ```bash
    npx tsc --noEmit
    npm run eval
    ```
-3. **Commit your changes:**
+3. **Commit:**
    ```bash
-   git commit -m "feat: add support for dynamic persona evolution"
+   git commit -m "feat: your feature description"
    ```
-4. **Push to your branch:**
-   ```bash
-   git push origin feature/my-new-feature
-   ```
-5. **Open a Pull Request** describing your changes.
+4. **Push and open a PR.**
 
 ---
 
 ## 📜 License
 
-This project is licensed under the **MIT License**. See the [LICENSE](LICENSE) file for details. Feel free to use, modify, and distribute it in your own projects.
+This project is licensed under the **MIT License**. See the [LICENSE](LICENSE) file for details.
+
+---
+
+<div align="center">
+
+Built with ❤️ for the **BharatCode Build League 2026**
+
+**Powered by [bharatcode.ai](https://bharatcode.ai)**
+
+</div>

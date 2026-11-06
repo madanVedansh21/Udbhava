@@ -150,8 +150,17 @@ interface EndpointConfig {
 }
 
 function getLLMEndpoint(): EndpointConfig {
-  const provider = (process.env.MODEL_PROVIDER || "unsloth").toLowerCase();
-  const model = process.env.MODEL_ID || "qwen2.5-coder";
+  const provider = (process.env.MODEL_PROVIDER || "bharatcode").toLowerCase();
+  const model = process.env.MODEL_ID || "deepseek-v4.1-flash";
+
+  // BharatCode — primary/default provider (OpenAI-compatible)
+  if (provider === "bharatcode") {
+    return {
+      url: "https://bharatcode.ai/api/model/v1/chat/completions",
+      apiKey: process.env.BHARATCODE_API_KEY || process.env.MY_KEY || "",
+      model,
+    };
+  }
 
   if (provider === "openrouter") {
     return {

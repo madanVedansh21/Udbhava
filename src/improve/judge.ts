@@ -1,20 +1,20 @@
 // =============================================================================
-// src/improve/judge.ts — LLM-as-a-Judge pipeline for memory strategy eval.
+// src/improve/judge.ts ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â LLM-as-a-Judge pipeline for memory strategy eval.
 //
-// Design choices (all research-backed — see cli-sessions/bhive-v2-research.md):
-//   • Uses a SEPARATE model from the actor to avoid self-preference bias
-//   • Temperature 0 — deterministic, reproducible
-//   • k=3 samples, median per dimension — single samples are noise
-//   • Rationale fields come BEFORE scores in JSON schema (model reasons first)
-//   • 1-5 behavioral Likert scale (1-10 compresses to 7-9 in practice)
-//   • ACCEPT_MARGIN of +0.05 prevents churn from judge noise
+// Design choices (all research-backed ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â see cli-sessions/bhive-v2-research.md):
+//   ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â¢ Uses a SEPARATE model from the actor to avoid self-preference bias
+//   ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â¢ Temperature 0 ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â deterministic, reproducible
+//   ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â¢ k=3 samples, median per dimension ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â single samples are noise
+//   ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â¢ Rationale fields come BEFORE scores in JSON schema (model reasons first)
+//   ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â¢ 1-5 behavioral Likert scale (1-10 compresses to 7-9 in practice)
+//   ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â¢ ACCEPT_MARGIN of +0.05 prevents churn from judge noise
 //
 // Config (env vars):
-//   JUDGE_API_KEY          — API key for the judge model (defaults to MY_KEY)
-//   JUDGE_MODEL_PROVIDER   — Provider for the judge model: anthropic | openai | openrouter | gemini (defaults to MODEL_PROVIDER)
-//   JUDGE_MODEL_ID         — Model to use (set via env — no default; choose per provider)
-//   JUDGE_SAMPLES          — How many times to sample (default: 3)
-//   ACCEPT_MARGIN          — Minimum delta to accept a proposal (default: 0.05)
+//   JUDGE_API_KEY          ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â API key for the judge model (defaults to MY_KEY)
+//   JUDGE_MODEL_PROVIDER   ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â Provider for the judge model: anthropic | openai | openrouter | gemini (defaults to MODEL_PROVIDER)
+//   JUDGE_MODEL_ID         ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â Model to use (set via env ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â no default; choose per provider)
+//   JUDGE_SAMPLES          ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â How many times to sample (default: 3)
+//   ACCEPT_MARGIN          ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â Minimum delta to accept a proposal (default: 0.05)
 // =============================================================================
 
 import "../env";
@@ -55,7 +55,7 @@ export interface JudgeResult {
 // Configuration
 // ---------------------------------------------------------------------------
 
-const JUDGE_MODEL_PROVIDER = process.env.JUDGE_MODEL_PROVIDER ?? process.env.MODEL_PROVIDER ?? "anthropic";
+const JUDGE_MODEL_PROVIDER = process.env.JUDGE_MODEL_PROVIDER ?? process.env.MODEL_PROVIDER ?? "bharatcode";
 const JUDGE_MODEL_ID = process.env.JUDGE_MODEL_ID ?? "";
 const JUDGE_SAMPLES = parseInt(process.env.JUDGE_SAMPLES ?? "3", 10);
 const JUDGE_PASS_THRESHOLD = 0.6; // composite >= 0.6 to pass a single sample
@@ -75,16 +75,19 @@ async function callLLM(prompt: string, apiKey: string): Promise<string> {
   const provider = JUDGE_MODEL_PROVIDER.toLowerCase();
 
   if (
+    provider === "bharatcode" ||
     provider === "openai" ||
     provider === "openrouter" ||
     provider === "ollama" ||
     provider === "local" ||
     provider === "unsloth"
   ) {
-    // OpenAI-compatible: works with gpt-4o, openrouter, or local runners (Unsloth, Ollama, LM Studio, vLLM)
+    // OpenAI-compatible: BharatCode (default), OpenAI, OpenRouter, or local runners (Unsloth, Ollama, LM Studio, vLLM)
     const { default: OpenAI } = await import("openai");
     const baseURL =
-      provider === "openrouter"
+      provider === "bharatcode"
+        ? "https://bharatcode.ai/api/model/v1"
+        : provider === "openrouter"
         ? "https://openrouter.ai/api/v1"
         : provider === "ollama"
         ? (process.env.OLLAMA_BASE_URL ?? "http://localhost:11434/v1")
@@ -129,7 +132,7 @@ async function callLLM(prompt: string, apiKey: string): Promise<string> {
 
   } else {
     throw new Error(
-      `Unsupported JUDGE_MODEL_PROVIDER: "${JUDGE_MODEL_PROVIDER}". Supported providers: gemini, openai, openrouter, anthropic.`
+      `Unsupported JUDGE_MODEL_PROVIDER: "${JUDGE_MODEL_PROVIDER}". Supported providers: bharatcode, gemini, openai, openrouter, anthropic.`
     );
   }
 }
@@ -172,7 +175,7 @@ Use a strict 1-5 integer scale with these behavioral anchors:
    2 = Contains most facts but with substantial irrelevant boilerplate
    3 = Contains main facts, some noise present
    4 = Well-distilled, mostly high-signal
-   5 = Distills complex state into crisp, high-signal needles — no filler
+   5 = Distills complex state into crisp, high-signal needles ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â no filler
 
 2. actionability (Next-Action Priming)
    1 = Pure passive data dump, no behavioral direction for this tick
@@ -193,10 +196,10 @@ Use a strict 1-5 integer scale with these behavioral anchors:
    2 = Substantially over-verbose, could cut 50%+
    3 = Adequate length, could be 30% more concise
    4 = Good density, minor trimming possible
-   5 = Maximally efficient — no wasted tokens, every sentence earns its place
+   5 = Maximally efficient ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â no wasted tokens, every sentence earns its place
 
 IMPORTANT: You MUST output your reasoning in the rationale fields BEFORE assigning scores.
-Return ONLY a valid JSON object — no markdown fences, no extra text — matching this exact schema:
+Return ONLY a valid JSON object ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â no markdown fences, no extra text ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â matching this exact schema:
 
 {
   "rationale": {
@@ -288,7 +291,7 @@ function median(values: number[]): number {
 }
 
 // ---------------------------------------------------------------------------
-// Main exported function — runs k samples and returns median scores
+// Main exported function ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â runs k samples and returns median scores
 // ---------------------------------------------------------------------------
 
 export async function judgeContextPrompt(
@@ -299,7 +302,9 @@ export async function judgeContextPrompt(
 ): Promise<JudgeResult> {
   const provider = JUDGE_MODEL_PROVIDER.toLowerCase();
   const providerKey =
-    provider === "openai"
+    provider === "bharatcode"
+      ? (process.env.BHARATCODE_API_KEY ?? process.env.MY_KEY)
+      : provider === "openai"
       ? process.env.OPENAI_API_KEY
       : provider === "openrouter"
       ? process.env.OPENROUTER_API_KEY

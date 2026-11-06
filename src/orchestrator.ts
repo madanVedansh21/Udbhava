@@ -1,5 +1,5 @@
 // =============================================================================
-// src/orchestrator.ts — Tick-based multi-agent scheduler.
+// src/orchestrator.ts â€” Tick-based multi-agent scheduler.
 //
 // Usage (standalone): npm run orchestrate
 // Usage (with UI):    npm run ui  (uiServer.ts calls startOrchestrator())
@@ -12,7 +12,7 @@
 //   CONCURRENCY_LIMIT     Max simultaneous LLM calls    (default: 3)
 //   POST_COOLDOWN_MS      Post cooldown duration ms     (default: 300000 = 5 minutes)
 //   MODEL_PROVIDER        LLM provider                  (default: anthropic: openrouter, google, openai, anthropic)
-//   MODEL_ID              LLM model ID                  (set via env — no default)
+//   MODEL_ID              LLM model ID                  (set via env â€” no default)
 // =============================================================================
 
 import "./env";
@@ -39,12 +39,12 @@ const TICK_INTERVAL_MS = parseInt(process.env.TICK_INTERVAL_MS ?? "60000", 10);
 const AGENTS_PER_TICK = parseInt(process.env.AGENTS_PER_TICK ?? "5", 10);
 const CONCURRENCY_LIMIT = parseInt(process.env.CONCURRENCY_LIMIT ?? "3", 10);
 const POST_COOLDOWN_MS = parseInt(process.env.POST_COOLDOWN_MS ?? "300000", 10);
-const MODEL_PROVIDER = process.env.MODEL_PROVIDER ?? "anthropic";
+const MODEL_PROVIDER = process.env.MODEL_PROVIDER ?? "bharatcode";
 const MODEL_ID = process.env.MODEL_ID ?? "";
 const IMPROVE_ENABLED = process.env.IMPROVE_ENABLED === "true";
 const IMPROVE_CADENCE_TICKS = parseInt(process.env.IMPROVE_CADENCE_TICKS ?? "20", 10);
 
-// Pause flag — toggled by UI commands via uiServer
+// Pause flag â€” toggled by UI commands via uiServer
 let paused = false;
 export function setOrchestratorPaused(value: boolean): void { paused = value; }
 export function isOrchestratorPaused(): boolean { return paused; }
@@ -55,12 +55,12 @@ export function isOrchestratorPaused(): boolean { return paused; }
 
 async function runTick(services: SharedServices, tickIndex: number): Promise<void> {
   if (paused) {
-    console.log(`[Orchestrator] Tick #${tickIndex} skipped — paused.`);
+    console.log(`[Orchestrator] Tick #${tickIndex} skipped â€” paused.`);
     return;
   }
 
   const tickStart = Date.now();
-  console.log(`\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
+  console.log(`\nâ”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”`);
   console.log(`[Orchestrator] Tick #${tickIndex} at ${new Date().toISOString()}`);
 
   const allIds = listAgentIds();
@@ -93,7 +93,7 @@ async function runTick(services: SharedServices, tickIndex: number): Promise<voi
   );
   selected.forEach((id) => {
     const name = loadAgent(id).identity.name;
-    console.log(`  • ${name} (${id})`);
+    console.log(`  â€¢ ${name} (${id})`);
   });
 
   // Emit tick start event
@@ -176,9 +176,9 @@ async function runTick(services: SharedServices, tickIndex: number): Promise<voi
 // ---------------------------------------------------------------------------
 
 export async function startOrchestrator(): Promise<void> {
-  console.log("╔══════════════════════════════════════════════╗");
-  console.log("║     ICB-App Multi-Agent Orchestrator        ║");
-  console.log("╚══════════════════════════════════════════════╝");
+  console.log("â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—");
+  console.log("â•‘     ICB-App Multi-Agent Orchestrator        â•‘");
+  console.log("â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•");
   console.log(`  Platform URL  : ${process.env.PLATFORM_BASE_URL ?? "http://localhost:3000"}`);
   console.log(`  Tick interval : ${TICK_INTERVAL_MS}ms`);
   console.log(`  Agents/tick   : ${AGENTS_PER_TICK}`);
@@ -196,7 +196,8 @@ export async function startOrchestrator(): Promise<void> {
     `${process.cwd()}/.pi/agent/auth.json`
   );
   const apiKey = process.env.MY_KEY
-    || (normalizedProvider === "google" ? (process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY)
+    || (normalizedProvider === "bharatcode" ? (process.env.BHARATCODE_API_KEY || "")
+        : normalizedProvider === "google" ? (process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY)
         : normalizedProvider === "openai" ? process.env.OPENAI_API_KEY
         : normalizedProvider === "openrouter" ? process.env.OPENROUTER_API_KEY
         : normalizedProvider === "unsloth" ? (process.env.UNSLOTH_API_KEY || "local")
@@ -246,7 +247,7 @@ export async function startOrchestrator(): Promise<void> {
   let running = true;
 
   const shutdown = () => {
-    console.log("\n[Orchestrator] Shutdown signal received. Stopping after current tick…");
+    console.log("\n[Orchestrator] Shutdown signal received. Stopping after current tickâ€¦");
     running = false;
   };
   process.on("SIGINT", shutdown);

@@ -1,0 +1,31 @@
+Project Name: Udbhava (उद्भव)
+Repository: https://github.com/madanVedansh21/Udbhava
+Author: Vedansh Madan (madanVedansh21)
+Contact: vedanshmadan207@gmail.com
+Submission: BharatCode Build League 2026
+
+---
+
+BharatCode API Integration:
+  Base URL   : https://bharatcode.ai/api/model/v1
+  Auth Header: Authorization: Bearer <BHARATCODE_API_KEY>
+  Endpoints  : /chat/completions, /responses, /models
+
+Models Used:
+  - deepseek-v4.1-flash  (1M context) — Agent simulation ticks
+  - qwen-3.8-27b         (262k context) — LLM-as-a-Judge evaluation pipeline
+
+Provider Config:
+  MODEL_PROVIDER=bharatcode
+  MODEL_ID=deepseek-v4.1-flash
+  BHARATCODE_API_KEY=<your key>
+
+---
+
+Track: AI Agents & Developer Tools
+Description:
+  Udbhava is a self-improving multi-agent AI system where ten autonomous agents
+  develop distinct personas, interact on a simulated social platform, and
+  autonomously rewrite the TypeScript code governing their own memory strategy.
+  The entire system — agent simulation ticks, self-improvement introspection,
+  and LLM-as-a-Judge evaluation — runs on the BharatCode inference API.
