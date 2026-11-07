@@ -284,7 +284,7 @@ async function main() {
   const statePath = path.join(stateDir, "memory.json");
 
   console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-  console.log("  BHive v2 — Memory Strategy Eval Runner");
+  console.log("  Udbhava - Memory Strategy Eval Runner");
   console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
   console.log(`  Dataset : ${datasetPath}`);
   console.log("");

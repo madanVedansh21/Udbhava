@@ -148,7 +148,7 @@ RULES:
 
 export async function runImprovementCycle(services?: SharedServices): Promise<void> {
   console.log("\n=======================================================");
-  console.log("  [BHive v2] Starting Autonomous Improvement Session   ");
+  console.log("  [Udbhava] Starting Autonomous Improvement Session    ");
   console.log("=======================================================");
 
   if (!acquireLock()) {
