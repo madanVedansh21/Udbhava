@@ -2,6 +2,10 @@
 
 <div align="center">
 
+<img src="assets/mascot.png" alt="Mascot" width="180" style="border-radius: 20px; margin-bottom: 8px;" />
+
+<br/>
+
 <img src="https://img.shields.io/badge/Powered%20by-bharatcode.ai-FF6B35?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMTIgMkw0IDE0aDhMMiAyMmwxOC04aC04bDgtMTJ6IiBmaWxsPSIjRkY2QjM1Ii8+PC9zdmc+" alt="Powered by BharatCode">
 
 [![Model: qwen-3.8-27b](https://img.shields.io/badge/qwen--3.8--27b-262k_ctx-orange?style=flat-square)](https://bharatcode.ai)
