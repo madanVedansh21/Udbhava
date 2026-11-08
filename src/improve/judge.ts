@@ -1,20 +1,20 @@
 // =============================================================================
-// src/improve/judge.ts ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â LLM-as-a-Judge pipeline for memory strategy eval.
+// src/improve/judge.ts  -  LLM-as-a-Judge pipeline for memory strategy eval.
 //
-// Design choices (all research-backed ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â see cli-sessions/bhive-v2-research.md):
-//   ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â¢ Uses a SEPARATE model from the actor to avoid self-preference bias
-//   ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â¢ Temperature 0 ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â deterministic, reproducible
-//   ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â¢ k=3 samples, median per dimension ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â single samples are noise
-//   ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â¢ Rationale fields come BEFORE scores in JSON schema (model reasons first)
-//   ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â¢ 1-5 behavioral Likert scale (1-10 compresses to 7-9 in practice)
-//   ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â¢ ACCEPT_MARGIN of +0.05 prevents churn from judge noise
+// Design choices (all research-backed  -  see cli-sessions/bhive-v2-research.md):
+//    -  Uses a SEPARATE model from the actor to avoid self-preference bias
+//    -  Temperature 0  -  deterministic, reproducible
+//    -  k=3 samples, median per dimension  -  single samples are noise
+//    -  Rationale fields come BEFORE scores in JSON schema (model reasons first)
+//    -  1-5 behavioral Likert scale (1-10 compresses to 7-9 in practice)
+//    -  ACCEPT_MARGIN of +0.05 prevents churn from judge noise
 //
 // Config (env vars):
-//   JUDGE_API_KEY          ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â API key for the judge model (defaults to MY_KEY)
-//   JUDGE_MODEL_PROVIDER   ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â Provider for the judge model: anthropic | openai | openrouter | gemini (defaults to MODEL_PROVIDER)
-//   JUDGE_MODEL_ID         ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â Model to use (set via env ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â no default; choose per provider)
-//   JUDGE_SAMPLES          ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â How many times to sample (default: 3)
-//   ACCEPT_MARGIN          ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â Minimum delta to accept a proposal (default: 0.05)
+//   JUDGE_API_KEY           -  API key for the judge model (defaults to MY_KEY)
+//   JUDGE_MODEL_PROVIDER    -  Provider for the judge model: bharatcode (defaults to bharatcode)
+//   JUDGE_MODEL_ID          -  Model to use (set via env  -  no default; choose per provider)
+//   JUDGE_SAMPLES           -  How many times to sample (default: 3)
+//   ACCEPT_MARGIN           -  Minimum delta to accept a proposal (default: 0.05)
 // =============================================================================
 
 import "../env";
@@ -72,69 +72,19 @@ async function callLLM(prompt: string, apiKey: string): Promise<string> {
     );
   }
 
-  const provider = JUDGE_MODEL_PROVIDER.toLowerCase();
-
-  if (
-    provider === "bharatcode" ||
-    provider === "openai" ||
-    provider === "openrouter" ||
-    provider === "ollama" ||
-    provider === "local" ||
-    provider === "unsloth"
-  ) {
-    // OpenAI-compatible: BharatCode (default), OpenAI, OpenRouter, or local runners (Unsloth, Ollama, LM Studio, vLLM)
-    const { default: OpenAI } = await import("openai");
-    const baseURL =
-      provider === "bharatcode"
-        ? "https://bharatcode.ai/api/model/v1"
-        : provider === "openrouter"
-        ? "https://openrouter.ai/api/v1"
-        : provider === "ollama"
-        ? (process.env.OLLAMA_BASE_URL ?? "http://localhost:11434/v1")
-        : provider === "unsloth"
-        ? (process.env.UNSLOTH_BASE_URL ?? "http://127.0.0.1:50297/v1")
-        : (process.env.OPENAI_BASE_URL ?? process.env.LOCAL_LLM_BASE_URL ?? undefined);
-
-    const client = new OpenAI({
-      apiKey: apiKey || "local",
-      baseURL,
-    });
-    const res = await client.chat.completions.create({
-      model: JUDGE_MODEL_ID,
-      temperature: 0,
-      max_tokens: 1024,
-      messages: [{ role: "user", content: prompt }],
-    });
-    return res.choices[0]?.message?.content ?? "";
-
-  } else if (provider === "gemini" || provider === "google") {
-    // Google Gemini via @google/generative-ai
-    const { GoogleGenerativeAI } = await import("@google/generative-ai");
-    const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({
-      model: JUDGE_MODEL_ID,
-      generationConfig: { temperature: 0, maxOutputTokens: 1024 },
-    });
-    const result = await model.generateContent(prompt);
-    return result.response.text();
-
-  } else if (provider === "anthropic") {
-    // Anthropic provider
-    const { default: Anthropic } = await import("@anthropic-ai/sdk");
-    const client = new Anthropic({ apiKey });
-    const response = await client.messages.create({
-      model: JUDGE_MODEL_ID,
-      max_tokens: 1024,
-      temperature: 0,
-      messages: [{ role: "user", content: prompt }],
-    });
-    return response.content[0].type === "text" ? response.content[0].text : "";
-
-  } else {
-    throw new Error(
-      `Unsupported JUDGE_MODEL_PROVIDER: "${JUDGE_MODEL_PROVIDER}". Supported providers: bharatcode, gemini, openai, openrouter, anthropic.`
-    );
-  }
+  // BharatCode API (OpenAI-compatible)
+  const { default: OpenAI } = await import("openai");
+  const client = new OpenAI({
+    apiKey: apiKey || "",
+    baseURL: "https://bharatcode.ai/api/model/v1",
+  });
+  const res = await client.chat.completions.create({
+    model: JUDGE_MODEL_ID,
+    temperature: 0,
+    max_tokens: 1024,
+    messages: [{ role: "user", content: prompt }],
+  });
+  return res.choices[0]?.message?.content ?? "";
 }
 
 // ---------------------------------------------------------------------------
@@ -175,7 +125,7 @@ Use a strict 1-5 integer scale with these behavioral anchors:
    2 = Contains most facts but with substantial irrelevant boilerplate
    3 = Contains main facts, some noise present
    4 = Well-distilled, mostly high-signal
-   5 = Distills complex state into crisp, high-signal needles ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â no filler
+   5 = Distills complex state into crisp, high-signal needles  -  no filler
 
 2. actionability (Next-Action Priming)
    1 = Pure passive data dump, no behavioral direction for this tick
@@ -196,10 +146,10 @@ Use a strict 1-5 integer scale with these behavioral anchors:
    2 = Substantially over-verbose, could cut 50%+
    3 = Adequate length, could be 30% more concise
    4 = Good density, minor trimming possible
-   5 = Maximally efficient ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â no wasted tokens, every sentence earns its place
+   5 = Maximally efficient  -  no wasted tokens, every sentence earns its place
 
 IMPORTANT: You MUST output your reasoning in the rationale fields BEFORE assigning scores.
-Return ONLY a valid JSON object ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â no markdown fences, no extra text ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â matching this exact schema:
+Return ONLY a valid JSON object  -  no markdown fences, no extra text  -  matching this exact schema:
 
 {
   "rationale": {
@@ -291,7 +241,7 @@ function median(values: number[]): number {
 }
 
 // ---------------------------------------------------------------------------
-// Main exported function ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â runs k samples and returns median scores
+// Main exported function  -  runs k samples and returns median scores
 // ---------------------------------------------------------------------------
 
 export async function judgeContextPrompt(
@@ -300,30 +250,15 @@ export async function judgeContextPrompt(
   contextPrompt: string,
   apiKey?: string
 ): Promise<JudgeResult> {
-  const provider = JUDGE_MODEL_PROVIDER.toLowerCase();
-  const providerKey =
-    provider === "bharatcode"
-      ? (process.env.BHARATCODE_API_KEY ?? process.env.MY_KEY)
-      : provider === "openai"
-      ? process.env.OPENAI_API_KEY
-      : provider === "openrouter"
-      ? process.env.OPENROUTER_API_KEY
-      : provider === "unsloth"
-      ? (process.env.UNSLOTH_API_KEY ?? process.env.MY_KEY)
-      : (provider === "gemini" || provider === "google")
-      ? (process.env.GEMINI_API_KEY ?? process.env.GOOGLE_API_KEY)
-      : process.env.ANTHROPIC_API_KEY;
-
   const key =
     apiKey ??
     process.env.JUDGE_API_KEY ??
-    providerKey ??
-    process.env.MY_KEY ??
-    (provider === "ollama" || provider === "local" || provider === "unsloth" ? "local" : "");
+    process.env.BHARATCODE_API_KEY ??
+    "";
 
   if (!key) {
     throw new Error(
-      "No API key for judge. Set JUDGE_API_KEY, MY_KEY, or provider-specific API key (OPENROUTER_API_KEY, OPENAI_API_KEY, GEMINI_API_KEY, ANTHROPIC_API_KEY)."
+      "No API key for judge. Set JUDGE_API_KEY or BHARATCODE_API_KEY."
     );
   }
 

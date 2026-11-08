@@ -1,5 +1,5 @@
 // =============================================================================
-// src/improve/improveSession.ts â€” Pi session dedicated to self-improvement.
+// src/improve/improveSession.ts  -  Pi session dedicated to self-improvement.
 //
 // Usage:
 //   npm run improve
@@ -71,19 +71,12 @@ function releaseLock(): void {
 // ---------------------------------------------------------------------------
 
 export function createImprovementServices(): SharedServices {
-  const rawProvider = process.env.MODEL_PROVIDER ?? "bharatcode";
-  const modelProvider = rawProvider.toLowerCase() === "gemini" ? "google" : rawProvider.toLowerCase();
+  const rawProvider = "bharatcode";
+  const modelProvider = "bharatcode";
   const modelId = process.env.MODEL_ID ?? "";
 
   const authStorage = AuthStorage.create(`${process.cwd()}/.pi/agent/auth.json`);
-  const apiKey = process.env.MY_KEY
-    || (modelProvider === "bharatcode" ? (process.env.BHARATCODE_API_KEY || "")
-        : modelProvider === "google" ? (process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY)
-        : modelProvider === "openai" ? process.env.OPENAI_API_KEY
-        : modelProvider === "openrouter" ? process.env.OPENROUTER_API_KEY
-        : modelProvider === "unsloth" ? (process.env.UNSLOTH_API_KEY || "local")
-        : (modelProvider === "ollama" || modelProvider === "local") ? "local"
-        : process.env.ANTHROPIC_API_KEY);
+  const apiKey = process.env.BHARATCODE_API_KEY || "";
   if (apiKey) {
     authStorage.setRuntimeApiKey(modelProvider, apiKey);
   }
@@ -189,9 +182,9 @@ export async function runImprovementCycle(services?: SharedServices): Promise<vo
   const unsubscribe = session.subscribe((event) => {
     if (event.type === "tool_execution_end") {
       if (!event.isError) {
-        console.log(`  [Improvement] âœ“ tool: ${event.toolName}`);
+        console.log(`  [Improvement] [OK] tool: ${event.toolName}`);
       } else {
-        console.error(`  [Improvement] âœ— tool error: ${event.toolName}`);
+        console.error(`  [Improvement] [FAIL] tool error: ${event.toolName}`);
       }
     } else if (event.type === "agent_end") {
       console.log("  [Improvement] Session completed.");

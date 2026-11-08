@@ -1,5 +1,5 @@
 {
-  "name": "agog",
+  "name": "udbhava",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -32,9 +32,7 @@
     "typescript": "^6.0.3"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.125.0",
     "@earendil-works/pi-coding-agent": "^0.74.2",
-    "@google/generative-ai": "^0.24.1",
     "better-sqlite3": "^13.0.3",
     "cors": "^2.8.6",
     "express": "^5.2.1",

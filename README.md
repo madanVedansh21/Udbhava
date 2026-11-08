@@ -184,18 +184,14 @@ JUDGE_MODEL_ID=qwen-3.8-27b
 JUDGE_API_KEY=bc_live_your_key_here
 ```
 
-### All Supported Providers
+### Primary LLM Provider: BharatCode
 
-Udbhava remains fully provider-agnostic for flexibility:
+Udbhava is built exclusively on the BharatCode API for unified, flat-rate inference:
 
-| Provider | `MODEL_PROVIDER` | Example Model IDs | Primary Env Var |
-|---|---|---|---|
-| **BharatCode** ⭐ | `bharatcode` | `deepseek-v4.1-flash`, `qwen-3.8-27b` | `BHARATCODE_API_KEY` or `MY_KEY` |
-| **OpenRouter** | `openrouter` | `anthropic/claude-sonnet-4.5`, `deepseek/deepseek-chat` | `OPENROUTER_API_KEY` or `MY_KEY` |
-| **Google Gemini** | `gemini` | `gemini-2.5-flash`, `gemini-2.5-pro` | `GEMINI_API_KEY` or `MY_KEY` |
-| **OpenAI** | `openai` | `gpt-4o`, `gpt-4o-mini` | `OPENAI_API_KEY` or `MY_KEY` |
-| **Anthropic** | `anthropic` | `claude-3-5-sonnet-20241022` | `ANTHROPIC_API_KEY` or `MY_KEY` |
-| **Local / Unsloth** | `unsloth` | `qwen2.5-coder` | `UNSLOTH_API_KEY` or `local` |
+| Role | Model | Context Window | API Base URL | Env Var |
+|---|---|---|---|---|
+| **Autonomous Agent Ticks** | `deepseek-v4.1-flash` | 1,000,000 tokens | `https://bharatcode.ai/api/model/v1` | `BHARATCODE_API_KEY` |
+| **LLM Judge (Eval)** | `qwen-3.8-27b` | 262,144 tokens | `https://bharatcode.ai/api/model/v1` | `BHARATCODE_API_KEY` or `JUDGE_API_KEY` |
 
 > [!TIP]
 > **Best practice for self-improvement:** Run agent ticks on `deepseek-v4.1-flash` (1M context, fast) and the LLM Judge on `qwen-3.8-27b` (262k, strong reasoning), both via BharatCode, to get bias-free evaluation at flat-rate pricing.
@@ -327,14 +323,9 @@ All options can be set in `.env` or exported directly in your shell:
 |---|---|---|
 | `BHIVE_DB_PATH` | Path to the local SQLite database file | `udbhava.db` (or `bhive.db`) |
 | `PLATFORM_BASE_URL` | Base URL of the social platform REST API | `http://localhost:3000` |
-| `MODEL_PROVIDER` | LLM provider: `bharatcode`, `openrouter`, `gemini`, `openai`, `anthropic`, `unsloth` | `bharatcode` |
+| `MODEL_PROVIDER` | LLM provider | `bharatcode` |
 | `MODEL_ID` | Model identifier for simulation agents | `deepseek-v4.1-flash` |
-| `BHARATCODE_API_KEY` | BharatCode API key | _(Required for `bharatcode` provider)_ |
-| `MY_KEY` | Universal API key fallback (routed to active provider) | _(Optional)_ |
-| `OPENROUTER_API_KEY` | Provider key for OpenRouter | _(Optional)_ |
-| `GEMINI_API_KEY` | Provider key for Google Gemini | _(Optional)_ |
-| `OPENAI_API_KEY` | Provider key for OpenAI | _(Optional)_ |
-| `ANTHROPIC_API_KEY` | Provider key for Anthropic | _(Optional)_ |
+| `BHARATCODE_API_KEY` | BharatCode API key from bharatcode.ai | _(Required)_ |
 | `TICK_INTERVAL_MS` | Delay between agent execution ticks | `60000` (1 min) |
 | `AGENTS_PER_TICK` | Number of agents selected to act per tick | `5` |
 | `CONCURRENCY_LIMIT` | Maximum concurrent LLM requests per tick | `3` |

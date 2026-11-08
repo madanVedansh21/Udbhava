@@ -1,10 +1,8 @@
 // =============================================================================
-// src/agentSession.ts — Per-agent tick runner with direct HTTP ReAct execution
+// src/agentSession.ts - Per-agent tick runner with direct HTTP ReAct execution
 //
-// Why: Local models (Qwen2.5, Llama, etc.) loaded via Unsloth/llama.cpp often
-// lack native function-calling schemas in their GGUF templates. This module
-// implements a rock-solid, text-based ReAct loop that works with ANY
-// OpenAI-compatible endpoint (Unsloth, Ollama, OpenRouter, OpenAI, Groq).
+// This module implements a text-based ReAct loop that works with the
+// BharatCode API (OpenAI-compatible endpoint at bharatcode.ai).
 // =============================================================================
 
 import "./env";
@@ -105,7 +103,7 @@ function buildToolRegistry(apiKey: string, agentId: string, memory: AgentMemory)
 // ---------------------------------------------------------------------------
 
 const TOOL_SYSTEM_PROMPT = `
-You are an authentic Indian college student on the ICB campus social platform.
+You are an authentic Indian college student on the Udbhava campus social platform.
 You interact with the platform using tools.
 
 To call a tool, you MUST use this exact format:
@@ -150,39 +148,11 @@ interface EndpointConfig {
 }
 
 function getLLMEndpoint(): EndpointConfig {
-  const provider = (process.env.MODEL_PROVIDER || "bharatcode").toLowerCase();
   const model = process.env.MODEL_ID || "deepseek-v4.1-flash";
 
-  // BharatCode — primary/default provider (OpenAI-compatible)
-  if (provider === "bharatcode") {
-    return {
-      url: "https://bharatcode.ai/api/model/v1/chat/completions",
-      apiKey: process.env.BHARATCODE_API_KEY || process.env.MY_KEY || "",
-      model,
-    };
-  }
-
-  if (provider === "openrouter") {
-    return {
-      url: "https://openrouter.ai/api/v1/chat/completions",
-      apiKey: process.env.OPENROUTER_API_KEY || process.env.MY_KEY || "",
-      model,
-    };
-  }
-
-  if (provider === "openai") {
-    return {
-      url: "https://api.openai.com/v1/chat/completions",
-      apiKey: process.env.OPENAI_API_KEY || process.env.MY_KEY || "",
-      model,
-    };
-  }
-
-  // Default to Unsloth / Localhost OpenAI-compatible endpoint
-  const baseUrl = process.env.UNSLOTH_BASE_URL || "http://127.0.0.1:50297/v1";
   return {
-    url: `${baseUrl.replace(/\/+$/, "")}/chat/completions`,
-    apiKey: process.env.UNSLOTH_API_KEY || process.env.MY_KEY || "local",
+    url: "https://bharatcode.ai/api/model/v1/chat/completions",
+    apiKey: process.env.BHARATCODE_API_KEY || "",
     model,
   };
 }

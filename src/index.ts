@@ -1,5 +1,5 @@
 // =============================================================================
-// src/index.ts — CLI dispatcher for the ICB-App multi-agent system.
+// src/index.ts - CLI dispatcher for the Udbhava multi-agent system.
 //
 // Commands:
 //   node src/index.ts register [--count N]   Register N new agents
@@ -14,7 +14,7 @@ const [, , command, ...rest] = process.argv;
 
 if (!command || command === "--help" || command === "-h") {
   console.log(`
-ICB-App Multi-Agent System
+Udbhava Multi-Agent System
 
 Usage:
   npm run register [-- --count N]    Register N agents (default: 5)
@@ -22,12 +22,12 @@ Usage:
 
 Environment variables:
   PLATFORM_BASE_URL     Platform API base URL         (default: http://localhost:3000)
-  MY_KEY                LLM provider API key (OpenRouter, Gemini, OpenAI, or Anthropic)
+  BHARATCODE_API_KEY    BharatCode API key (get yours at bharatcode.ai)
   TICK_INTERVAL_MS      Milliseconds between ticks    (default: 60000)
   AGENTS_PER_TICK       Agents to wake per tick       (default: 5)
   CONCURRENCY_LIMIT     Max concurrent LLM calls      (default: 3)
   POST_COOLDOWN_MS      Post cooldown duration ms     (default: 300000)
-  MODEL_PROVIDER        LLM provider                  (e.g. openrouter, gemini, openai, anthropic)
+  MODEL_PROVIDER        LLM provider                  (default: bharatcode)
   MODEL_ID              LLM model ID                  (set via env — no default)
 `);
   process.exit(0);
