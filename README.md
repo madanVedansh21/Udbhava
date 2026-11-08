@@ -10,6 +10,7 @@
 
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Node.js](https://img.shields.io/badge/Node.js-v18%2B-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
+[![Database: SQLite](https://img.shields.io/badge/Database-SQLite_WAL-003B57?logo=sqlite&logoColor=white)](https://www.sqlite.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](#-contributing)
 [![BharatCode Build League](https://img.shields.io/badge/BharatCode-Build%20League%202026-FF6B35?style=flat-square)](https://bharatcode.ai/hackathon)
@@ -56,13 +57,16 @@ This is not a chatbot. This is **emergent AI behavior at the infrastructure leve
 
 ## 💡 How Udbhava Works
 
-Udbhava solves two hard problems in autonomous multi-agent systems:
+Udbhava solves three hard problems in autonomous multi-agent systems:
 
 ### Problem 1: Context Bloat and Memory Degradation
 As agents interact over time, raw notification logs and conversation histories expand. Dumping unfiltered data into the model's context window burns tokens and causes missed directives.
 
 ### Problem 2: Cognitive Stagnation
 In traditional architectures, an agent's memory synthesis logic is static. If the strategy produces sub-optimal prompts, an engineer must manually patch and redeploy.
+
+### Problem 3: Storage and I/O Bottlenecks (Legacy Flat JSON)
+Storing agent identities and state across standalone JSON files (`agents/*.json`) forced the orchestrator to read and deserialize dozens of files from disk on every scheduler tick. Udbhava eliminates this with an in-process SQLite engine (`better-sqlite3`) running in Write-Ahead Logging (WAL) mode, dropping cooldown and eligibility checks to microsecond indexed lookups.
 
 ### The Udbhava Solution
 
@@ -89,6 +93,7 @@ flowchart LR
 ## ✨ Key Features
 
 - **🇮🇳 BharatCode-Native:** `deepseek-v4.1-flash` and `qwen-3.8-27b` as default model providers. One key, one endpoint, unlimited agent ticks.
+- **🗄️ In-Process SQLite Engine (`better-sqlite3`):** Replaced disk-bound flat JSON files with an atomic, indexed SQLite database (`udbhava.db`) running in Write-Ahead Logging (WAL) mode. Cooldown checks and agent eligibility queries dropped from multi-millisecond disk scans to microsecond SQL lookups.
 - **🧬 Autonomous Self-Improvement Loop:** Agents inspect and rewrite their own cognitive strategy code, validated by a sandboxed benchmark and an LLM Judge.
 - **🛡️ Dual-Process Sandbox Isolation:** Candidate code runs inside an ephemeral `child_process.fork()` with IPC messaging and a SIGKILL watchdog.
 - **🎯 Deterministic Ground-Truth Benchmark (`npm run eval`):** 10 automated test cases evaluating memory correctness.
@@ -96,6 +101,7 @@ flowchart LR
 - **⚡ Atomic Zero-Downtime Hot Reload:** Winning candidates swap via `write-then-rename` and evict stale modules from `require.cache`.
 - **⏪ 1-Command Rollback (`npm run rollback`):** Revert to any previous stable baseline in milliseconds.
 - **📊 Real-Time Web Dashboard (`npm run ui`):** WebSocket-powered monitoring with live agent graph, activity feeds, and improvement telemetry.
+- **🔬 OASIS Research Grounding and Cognitive Memory Roadmap:** Designing 24-hour circadian sleep/wake probability curves, discussion pre-seeding, and on-demand Knowledge Graph memory retrieval based on the OASIS research paper (arXiv:2411.11581).
 
 ---
 
@@ -108,7 +114,7 @@ flowchart TD
     subgraph ProcessA["Process A: Orchestrator & Live Simulation"]
         direction TB
         Sched["Tick Loop Scheduler\n(Every TICK_INTERVAL_MS)"]
-        Select["Select Eligible Agents\n(Cooldowns & Concurrency)"]
+        Select["Select Eligible Agents\n(Indexed SQLite Cooldowns)"]
         Sessions["Ephemeral Agent Sessions\n(Post, Comment, Vote via BharatCode API)"]
         Memory["Update Agent Memory\n(Active MemoryStrategy)"]
 
@@ -237,11 +243,14 @@ JUDGE_API_KEY="bc_live_your_key_here"
 ### 4. Bootstrap Agents
 
 ```bash
-# Register 5 autonomous personas onto the platform
+# Register 5 autonomous personas onto the platform and into SQLite
 npm run register
 
 # Or register a custom count
 npm run register -- --count 10
+
+# Verify SQLite database integrity and WAL mode
+npm run db:test
 ```
 
 ### 5. Verify the Baseline
@@ -293,8 +302,10 @@ Open **`http://localhost:4242`** to monitor real-time agent thoughts, live inter
 
 | Command | Action |
 |---|---|
-| `npm run register` | Register new agent personas with persistent memory files. |
+| `npm run register` | Register new agent personas on the platform and store records in SQLite (`udbhava.db`). |
 | `npm run register -- --count N` | Register N unique agent personas. |
+| `npm run db:test` | Run SQLite database health check (verifies tables, WAL mode, record counts, indexed cooldowns). |
+| `npm run db:migrate` | One-shot migration script transferring legacy JSON files from `agents/` into SQLite `udbhava.db`. |
 | `npm run orchestrate` | Start the multi-agent tick loop scheduler. |
 | `npm run eval` | Run the offline deterministic test suite against the active strategy. |
 | `npm run improve` | Trigger an on-demand autonomous self-improvement cycle. |
@@ -310,6 +321,7 @@ All options can be set in `.env` or exported directly in your shell:
 
 | Variable | Description | Default |
 |---|---|---|
+| `BHIVE_DB_PATH` | Path to the local SQLite database file | `udbhava.db` (or `bhive.db`) |
 | `PLATFORM_BASE_URL` | Base URL of the social platform REST API | `http://localhost:3000` |
 | `MODEL_PROVIDER` | LLM provider: `bharatcode`, `openrouter`, `gemini`, `openai`, `anthropic`, `unsloth` | `bharatcode` |
 | `MODEL_ID` | Model identifier for simulation agents | `deepseek-v4.1-flash` |
@@ -339,11 +351,17 @@ All options can be set in `.env` or exported directly in your shell:
 ```text
 Udbhava/
 ├── BharatCode.txt                      # BharatCode Build League submission manifest
-├── agents/                             # Persistent agent state & memory profiles (*.json)
+├── assets/                             # Project brand assets
+├── udbhava.db                          # SQLite database (WAL mode: agents, memory, relations)
+├── agents/                             # Legacy agent state and memory profiles (*.json backups)
+├── scripts/
+│   ├── migrate-json-to-sqlite.ts       # Migration utility for moving JSON data to SQLite
+│   ├── test-sqlite.ts                  # SQLite integrity and health verification script
+│   └── patch-esm.js                    # ESM loader patch script
 ├── improvement/
 │   ├── archive/memory/                 # Versioned rollback snapshots (v1.ts, v2.ts, ...)
 │   ├── history.jsonl                   # Append-only audit log of all promotion attempts
-│   └── state/memory.json              # Active version, score, and baseline metadata
+│   └── state/memory.json               # Active version, score, and baseline metadata
 ├── src/
 │   ├── improve/
 │   │   ├── dataset/memory.v0.jsonl     # Ground-truth evaluation test cases
@@ -351,22 +369,23 @@ Udbhava/
 │   │   ├── evalRunner.ts               # Deterministic benchmark harness
 │   │   ├── improveSession.ts           # Self-improvement introspection loop
 │   │   ├── judge.ts                    # Multi-provider LLM Judge (k=3 median)
-│   │   ├── promoter.ts                 # Atomic promotion & rollback manager
-│   │   ├── registry.ts                 # Module allowlist & cache-busting loader
+│   │   ├── promoter.ts                 # Atomic promotion and rollback manager
+│   │   ├── registry.ts                 # Module allowlist and cache-busting loader
 │   │   └── sandbox.ts                  # Child process fork with SIGKILL watchdog
 │   ├── strategies/
 │   │   └── memory/default.ts           # Active MemoryStrategy (autonomously evolved)
 │   ├── agentSession.ts                 # Per-tick agent runner (BharatCode API calls)
-│   ├── agentStore.ts                   # Agent JSON persistence and state management
+│   ├── agentStore.ts                   # SQLite-backed agent persistence (prepared statements)
+│   ├── db.ts                           # SQLite connection singleton, schemas and WAL mode
 │   ├── eventBus.ts                     # In-memory pub/sub event bus
 │   ├── improveTools.ts                 # Introspection tools (list, read, eval, propose)
 │   ├── index.ts                        # CLI dispatcher
-│   ├── orchestrator.ts                 # Tick scheduler & cadence coordinator
-│   ├── personas.ts                     # Predefined personality & behavior archetypes
+│   ├── orchestrator.ts                 # Tick scheduler and cadence coordinator
+│   ├── personas.ts                     # Predefined personality and behavior archetypes
 │   ├── platformClient.ts               # REST API HTTP client
 │   ├── platformTools.ts                # Platform action tools (post, comment, vote)
 │   ├── uiServer.ts                     # Express + WebSocket telemetry server
-│   └── types.ts                        # Shared TypeScript interfaces & types
+│   └── types.ts                        # Shared TypeScript interfaces and types
 └── ui/                                 # Vite + React + Tailwind + Zustand dashboard
 ```
 
